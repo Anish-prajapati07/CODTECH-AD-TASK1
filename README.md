@@ -11,3 +11,8 @@ Domain:Cyber security and Ethical hacking
 Duration:December 17th,2024 to january 17th,2025
 
 Mentor:Neela Santhosh Kumar
+
+Overview
+•	BUILD A TOOL TO MONITOR CHANGES IN FILES BY CALCULATING AND COMPARING HASH VALUES.
+•A PYTHON SCRIPT USING LIBRARIES LIKE HASHLIB TO ENSURE FILE INTEGRITY.
+
