@@ -20,15 +20,15 @@ Mentor:Neela Santhosh Kumar
 # Main Features
 1.	Hash-Based File Monitoring:
 		
-•	Uses SHA-256 hashing to generate a unique fingerprint for each file.
+  •	Uses SHA-256 hashing to generate a unique fingerprint for each file.
 
-•	Hash values are stored in a JSON file (file_hashes.json) for comparison in subsequent runs.
+  •	Hash values are stored in a JSON file (file_hashes.json) for comparison in subsequent runs.
 
 2.	Change Detection:
     
-•	Compares the current state of files in the directory with the stored hash values.
+  •	Compares the current state of files in the directory with the stored hash values.
 
-•	Detects:
+  •	Detects:
 
    	Added files: New files that did not exist previously.
   
@@ -39,7 +39,7 @@ Mentor:Neela Santhosh Kumar
 
 3.	Persistent State:
 
-•	Saves file hash data in a JSON file to maintain state across multiple script runs.
+  •	Saves file hash data in a JSON file to maintain state across multiple script runs.
 
 
 
