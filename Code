@@ -1,0 +1,114 @@
+import os
+import hashlib
+import json
+
+class FileIntegrityChecker:
+    def __init__(self, directory, hash_file="file_hashes.json"):
+        """
+        Initializes the FileIntegrityChecker.
+
+        :param directory: The directory to monitor.
+        :param hash_file: The file to store hash values.
+        """
+        self.directory = directory
+        self.hash_file = hash_file
+        self.file_hashes = {}
+        self.load_hashes()
+
+    def calculate_hash(self, file_path):
+        """
+        Calculates the SHA-256 hash of a file.
+
+        :param file_path: Path to the file.
+        :return: The hash value as a hexadecimal string.
+        """
+        sha256 = hashlib.sha256()
+        try:
+            with open(file_path, "rb") as f:
+                while chunk := f.read(8192):
+                    sha256.update(chunk)
+            return sha256.hexdigest()
+        except (OSError, IOError) as e:
+            print(f"Error reading {file_path}: {e}")
+            return None
+
+    def load_hashes(self):
+        """
+        Loads previously stored hash values from a JSON file.
+        """
+        if os.path.exists(self.hash_file):
+            try:
+                with open(self.hash_file, "r") as f:
+                    self.file_hashes = json.load(f)
+            except (OSError, IOError, json.JSONDecodeError) as e:
+                print(f"Error loading hash file: {e}")
+
+    def save_hashes(self):
+        """
+        Saves the current hash values to a JSON file.
+        """
+        try:
+            with open(self.hash_file, "w") as f:
+                json.dump(self.file_hashes, f, indent=4)
+        except (OSError, IOError) as e:
+            print(f"Error saving hash file: {e}")
+
+    def scan_files(self):
+        """
+        Scans the directory for files and calculates their hash values.
+
+        :return: A dictionary of file paths and their hash values.
+        """
+        updated_hashes = {}
+        for root, _, files in os.walk(self.directory):
+            for file in files:
+                file_path = os.path.join(root, file)
+                file_hash = self.calculate_hash(file_path)
+                if file_hash:
+                    updated_hashes[file_path] = file_hash
+        return updated_hashes
+
+    def monitor_changes(self):
+        """
+        Compares current file hashes with stored hashes and identifies changes.
+
+        :return: A dictionary with added, modified, and removed files.
+        """
+        current_hashes = self.scan_files()
+        added = {}
+        modified = {}
+        removed = []
+
+        # Check for new or modified files
+        for file_path, file_hash in current_hashes.items():
+            if file_path not in self.file_hashes:
+                added[file_path] = file_hash
+            elif self.file_hashes[file_path] != file_hash:
+                modified[file_path] = file_hash
+
+        # Check for removed files
+        for file_path in self.file_hashes.keys():
+            if file_path not in current_hashes:
+                removed.append(file_path)
+
+        # Update stored hashes
+        self.file_hashes = current_hashes
+        self.save_hashes()
+
+        return {
+            "added": added,
+            "modified": modified,
+            "removed": removed
+        }
+
+if __name__ == "__main__":
+    directory_to_monitor = input("Enter the directory to monitor: ").strip()
+    checker = FileIntegrityChecker(directory_to_monitor)
+
+    print("Monitoring changes in files...")
+    changes = checker.monitor_changes()
+
+    print("Changes detected:")
+    print(f"Added: {changes['added']}")
+    print(f"Modified: {changes['modified']}")
+    print(f"Removed: {changes['removed']}")
